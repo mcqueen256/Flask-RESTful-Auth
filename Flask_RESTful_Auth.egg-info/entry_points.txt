@@ -1,0 +1,3 @@
+[console_scripts]
+flask-restful-auth-example = flask_restful_auth.__main__:main
+
