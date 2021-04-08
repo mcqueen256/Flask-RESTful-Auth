@@ -1,6 +1,6 @@
 /build/
 /dist/
 /venv/
-
+/Flask_RESTful_Auth.egg-info/
 
 /.vscode/
