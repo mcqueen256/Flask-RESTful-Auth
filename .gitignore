@@ -1,7 +1,23 @@
-/build/
-/dist/
-/venv/
-/Flask_RESTful_Auth.egg-info/
+# Python files
+venv/
 __pycahce__/
+*.pyc
+*.pyo
 
+# Distribution / packaging
+bin/
+build/
+develop-eggs/
+dist/
+eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.eggv
+
+# VS Code Editor
 /.vscode/
