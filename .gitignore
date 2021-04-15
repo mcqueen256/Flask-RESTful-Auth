@@ -2,5 +2,6 @@
 /dist/
 /venv/
 /Flask_RESTful_Auth.egg-info/
+__pycahce__/
 
 /.vscode/
