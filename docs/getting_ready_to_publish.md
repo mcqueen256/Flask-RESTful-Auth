@@ -35,6 +35,30 @@ Now try `python -m flask_restful_auth`.
 This library will not need a `__main__.py` as it is a plugin for Flask, but perhaps it can remain to run a main example. (Design Descision)
 
 
+# Publishing
+
+Eventually this process will be automated so that users won't have to manually publish.
+
+Need some packages to build and publish our package.
+
+```
+pip install wheel twine
+```
+
+Build the package
+
+```
+python setup.py sdist bdist_wheel
+```
+
+Publish the project:
+
+```
+twine upload dist/*
+```
+
+
+
 
 
 Refs:
