@@ -63,22 +63,6 @@ def create_app():
     # Initialise Flask-RESTful-Auth
     auth = RestfulAuth(app, User)
 
-    #creating decorator
-    #can be used for email auth
-    def require_login(func):
-        @wraps(func)
-        def checking(*args,**kwargs):
-            token = request.args.get('token')
-            if not token or token in blacklist:
-                return jsonify({'message':  'Missing token'}),403
-            try:
-                data = jwt.decode(token, app.config['SECRET_KEY'])
-                verified_user = User.query.filter_by(id = data['id']).first()
-            except:
-                return jsonify({'message': 'token is invalid'}),403
-            return func(verified_user,*args, **kwargs)
-        return checking
-
     @app.route('/',methods=['GET','POST'])
     def index():
         return 'Welcome to chatbox'
@@ -137,14 +121,6 @@ def create_app():
                 current_user.user.active = "False"
             blacklist.append(token) #invalidating the token if not expired yet
         return redirect(url_for('/'))
-
-    #check if the invalid token has expired or not
-    def invalidate_token():
-        for invalid in blacklist:
-            try:
-                jwt.verify(invalid,app.config['SECRET_KEY'])
-            except:
-                blacklist.remove(invalid)
     return app
         
     
