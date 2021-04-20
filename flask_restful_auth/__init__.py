@@ -6,3 +6,5 @@
 __version__ = "0.0.4"
 
 test_message = "Hello Flask!"
+
+from .decorators import *

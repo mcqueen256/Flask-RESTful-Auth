@@ -9,4 +9,5 @@ class ClientManager(object):
         pass
 
     def init_app(self, app):
+        pass
         
