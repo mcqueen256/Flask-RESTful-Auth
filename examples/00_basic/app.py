@@ -16,7 +16,7 @@ class User:
 
 @app.route('/')
 def home():
-    return 'This is the home page'
+    return 'This is the home page!'
 
 
 # creating decorator
@@ -57,4 +57,4 @@ def encode_token():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
