@@ -29,15 +29,22 @@ import secrets
 import jwt
 import datetime
 
+from flask_restful_auth.restful_auth import RestfulAuth
+from flask_restful_auth import login_required
+
 def create_app():
     """ Flask application factory. """
 
     app = Flask(__name__)
+
+    # Configure flask app
     app.config['SECRET_KEY'] = os.environ.get('Secret')
     app.config['SQLALCHEMY _DATABASE_URI'] = 'something'
 
+    # Initialise Flask-SQLAlchemy
     db = SQLAlchemy(app)
-    blacklist = []
+
+    app.blacklist = [] # TODO: Cannot have this in application memory. See issue #5
     class User(db.Model):
         ''' Setting up User'''
         id = db.Column(db.Integer, primary_key=True)
@@ -52,6 +59,9 @@ def create_app():
 
     def encoding_password(password):
         return sc.hash(password)
+
+    # Initialise Flask-RESTful-Auth
+    auth = RestfulAuth(app, User)
 
     #creating decorator
     #can be used for email auth
@@ -118,7 +128,7 @@ def create_app():
 
     #logout of user section
     @app.route('/logout/<token>',methods=['GET','POST','PUT'])
-    @require_login
+    @login_required
     def logout(current_user):
         if current_user.active == "True":
             try:
