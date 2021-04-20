@@ -73,13 +73,6 @@ def create_app():
     def index():
         return 'Welcome to chatbox'
 
-    #go to user home
-    @app.route('/home/<token>',methods=['GET','POST'])
-    @require_login
-    def user_home(current_user):
-        if current_user.active == "True":
-            return render_template("user_home.html",token=token)
-
     #create/register a user
     @app.route('/register',methods=['GET','POST'])
     def sign_up():
