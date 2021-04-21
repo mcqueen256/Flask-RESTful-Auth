@@ -19,7 +19,7 @@
 
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful_auth import RestfulAuth, login_required, with_user
+# from flask_restful_auth import RestfulAuth, login_required, with_user
 
 def create_app():
     """ Flask application factory. """
@@ -33,7 +33,7 @@ def create_app():
     # TODO: Define a User database ORM class and pass it to RestfulAuth
 
     # Initialise Flask-RESTful-Auth
-    auth = RestfulAuth(app, db)
+    # auth = RestfulAuth(app, db)
 
     @app.route('/')
     def index():
