@@ -20,6 +20,7 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 # from flask_restful_auth import RestfulAuth, login_required, with_user
+from flask import request
 
 def create_app():
     """ Flask application factory. """
@@ -39,9 +40,27 @@ def create_app():
     def index():
         return "Index page"
 
-    @app.route('/text/global.txt')
+    @app.route('/text/global.txt', methods=['GET', 'POST', 'PUT'])
+    
     # @login_required 
     def resource_global():
+        print(request.data)
+        if request.method == 'GET':
+            #read the contents of the file and return it
+            with open('global.txt', 'rb') as fin:
+                return fin.read()
+        if request.method == 'PUT':
+            #read the contents of the file and return it
+            with open('global.txt', 'wb') as fout:
+                #arguments for write
+                fout.write(request.data)
+                return "ok"
+        if request.method == 'POST':
+            #read the contents of the file and return it
+            with open('global.txt', 'wb') as fout:
+                
+                fout.write(request.data)
+                return "ok"
         return "TODO"
 
     @app.route('/text/user/<username>.txt')
