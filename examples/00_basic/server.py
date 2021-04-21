@@ -28,6 +28,7 @@ def create_app():
 
     # Initialise Flask-SQLAlchemy
     db = SQLAlchemy(app)
+    db.create_all()
 
     # TODO: Define a User database ORM class and pass it to RestfulAuth
 
@@ -39,15 +40,16 @@ def create_app():
         return "Index page"
 
     @app.route('/text/global.txt')
-    @login_required 
+    # @login_required 
     def resource_global():
         return "TODO"
 
     @app.route('/text/user/<username>.txt')
-    @login_required
-    @with_user
+    # @login_required
     def resouce_user(user):
         return "TODO"
+    
+    return app
 
 # Start development web server
 if __name__ == '__main__':

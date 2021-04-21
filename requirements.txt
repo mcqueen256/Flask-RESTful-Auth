@@ -7,7 +7,8 @@ colorama==0.4.4
 cryptography==3.4.7
 docutils==0.17
 Flask==1.1.2
--e git+git@github.com:mcqueen256/Flask-RESTful-Auth.git@ea94c3e9f16ef6ef3bf0ab628f38b72562ea47a0#egg=Flask_RESTful_Auth
+Flask-Login==0.5.0
+-e git+git@github.com:mcqueen256/Flask-RESTful-Auth.git@ae1da199dabcbb56119b658a2a1227fbcaa02572#egg=Flask_RESTful_Auth
 Flask-SQLAlchemy==2.5.1
 greenlet==1.0.0
 idna==2.10
@@ -15,13 +16,13 @@ importlib-metadata==3.10.1
 itsdangerous==1.1.0
 jeepney==0.6.0
 Jinja2==2.11.3
-jwt==1.2.0
 keyring==23.0.1
 MarkupSafe==1.1.1
 packaging==20.9
 passlib==1.7.4
 pkginfo==1.7.0
 pycparser==2.20
+PyJWT==2.0.1
 Pygments==2.8.1
 pyparsing==2.4.7
 readme-renderer==29.0
