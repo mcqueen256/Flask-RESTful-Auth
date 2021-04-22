@@ -19,5 +19,9 @@ var/
 .installed.cfg
 *.eggv
 
+# Testing
+global.txt
+user_files/
+
 # VS Code Editor
 /.vscode/
