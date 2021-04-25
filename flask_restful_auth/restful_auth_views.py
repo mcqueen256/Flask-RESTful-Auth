@@ -90,15 +90,17 @@ class RestfulAuth__Views(object):
         response = make_response("ok", 200)
 
         if JWT_ENABLE:
-            payload = {
-                'id': user.id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-            }
             secret = current_app.config['SECRET']
-            token: str = jwt.encode(payload, secret)
-            response.set_cookie(JWT_COOKIE_NAME, value=token)
+            secret_1 = current_app.config['SECRET1']
+            r_token: str = generate_refresh_token(user.id,secret_1)
+            a_token: str = generate_access_token(user.id,secret)
+            response.set_cookie(JWT_COOKIE_NAME, value=a_token)
+            response.set_cookie(JWT_NEW_COOKIE_NAME, value=r_token)
+            
             if JWT_STORE_AS_SESSION:
-                user.token = token
+                user.token = a_token
+                user.r_token = r_token
+        
         else:
             # TODO: Workout what happens here (config error 500).
             pass
@@ -161,7 +163,31 @@ class RestfulAuth__Views(object):
                 return False
         return True
         
-
+    def refresh(self):
+        if user.is_authenticated and JWT_ENABLE:
+            token = request.cookies.get(JWT_COOKIE_NAME)
+            secret = current_app.config['SECRET']
+            if not self.validate_token(token,secret):
+                r_token = request.cookies.get(JWT_NEW_COOKIE_NAME)
+                secret_1 = current_app.config['SECRET1']
+                if self.validate_token(r_token,secret_1):
+                    data = jwt.decode(r_token, secret1, "HS256")
+                    user = self.UserClass.query.filter_by(id=data['id']).first()
+                    if user is none:
+                        return False # or to logout page
+                    if JWT_STORE_AS_SESSION:
+                        if user.r_token != r_token:
+                            return False #or to logout page
+                    token = generate_access_token(data['id'],secret)
+                    user.token = token
+                    db.session.commit()
+                    return True
+                else:
+                    return False#to logout page
+            else:
+                return # to the directed page
+        else: 
+            return #to login page
 
     def login_required(self, func):
         @wraps(func)
@@ -198,3 +224,24 @@ class RestfulAuth__Views(object):
 
 def encoding_password(password):
     return sc.hash(password)
+
+def generate_refresh_token(self,uid,key):
+    payload = {
+                'id': uid,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+            }    
+    return jwt.encode(payload,key)
+
+def generate_access_token(self,uid,key):
+    payload = {
+                'id': uid,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=2)
+            }    
+    return jwt.encode(payload,key)
+
+def validate_token(self,token,secret):
+    try:
+        jwt.verify(token,secret)
+        return True
+    except:
+        return False

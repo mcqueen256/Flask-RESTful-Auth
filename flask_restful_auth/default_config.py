@@ -12,7 +12,8 @@ CLIENT_ENDPOINT_LOGOUT_METHODS = ['GET', 'POST']
 JWT_ENABLE = True
 """"""
 
-JWT_COOKIE_NAME = 'token'
+JWT_COOKIE_NAME = 'Atoken'
+JWT_NEW_COOKIE_NAME = 'Rtoken'
 
 JWT_STORE_AS_SESSION = True
 """
@@ -59,4 +60,3 @@ AUTHENTICATION_PASSWORD_STORAGE_ENCRYPTION_SALT_SHA256 = True
 
 LOGIN_USER_NOT_FOUND_MESSAGE = 'username or password is incorrect'
 LOGIN_USER_WRONG_PASSWORD_MESSAGE = 'username or password is incorrect'
-
