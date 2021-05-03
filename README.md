@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/img/Flask_RESTful_Auth_full_logo.JPG" width="250px"/></p>
+<p align="center"><img src="docs/img/Flask_RESTful_Auth_full_logo.JPG" width="600px"/></p>
 
 # Flask RESTful Auth
 
