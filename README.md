@@ -1,4 +1,8 @@
-# flask-restful-api
+<p align="center"><img src="docs/img/Flask_RESTful_Auth_full_logo.JPG" width="250px"/></p>
+
+# Flask RESTful Auth
+
+![Test Status](https://github.com/mcqueen256/Flask-RESTful-Auth/.github/workflows/python-package.yml/badge.svg)
 
 This is where a long description of our package will go...
 
