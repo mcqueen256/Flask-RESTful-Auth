@@ -12,8 +12,8 @@ CLIENT_ENDPOINT_LOGOUT_METHODS = ['GET', 'POST']
 JWT_ENABLE = True
 """"""
 
-JWT_COOKIE_NAME = 'Atoken'
-JWT_NEW_COOKIE_NAME = 'Rtoken'
+JWT_COOKIE_NAME = 'Atoken' #Access tokens
+JWT_REF_COOKIE_NAME = 'Rtoken' #Refresh tokens
 
 JWT_STORE_AS_SESSION = True
 """

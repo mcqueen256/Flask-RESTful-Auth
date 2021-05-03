@@ -95,11 +95,11 @@ class RestfulAuth__Views(object):
             r_token: str = generate_refresh_token(user.id,secret_1)
             a_token: str = generate_access_token(user.id,secret)
             response.set_cookie(JWT_COOKIE_NAME, value=a_token)
-            response.set_cookie(JWT_NEW_COOKIE_NAME, value=r_token)
+            response.set_cookie(JWT_REF_COOKIE_NAME, value=r_token)
             
             if JWT_STORE_AS_SESSION:
-                user.token = a_token
-                user.r_token = r_token
+                user.token = a_token #access token
+                user.r_token = r_token #refresh token
         
         else:
             # TODO: Workout what happens here (config error 500).
@@ -163,12 +163,22 @@ class RestfulAuth__Views(object):
                 return False
         return True
         
-    def refresh(self):
-        if user.is_authenticated and JWT_ENABLE:
+    def refresh(self) -> bool:
+        '''
+        After every refresh of webpage or when logging on to a new webpage
+        This function, first confirms that user is authenticated and Access token has expired 
+        Then using a refresh token, it generates a new access token
+
+        '''
+        if JWT_ENABLE:
             token = request.cookies.get(JWT_COOKIE_NAME)
             secret = current_app.config['SECRET']
-            if not self.validate_token(token,secret):
-                r_token = request.cookies.get(JWT_NEW_COOKIE_NAME)
+            data = jwt.decode(token, secret, "HS256")
+            id = data['id']
+            user = self.UserClass.query.filter_by(id=id).first()
+            #checking if access token has expired or not
+            if not self.validate_token(token,secret) and user.is_authenticated:
+                r_token = request.cookies.get(JWT_REF_COOKIE_NAME)
                 secret_1 = current_app.config['SECRET1']
                 if self.validate_token(r_token,secret_1):
                     data = jwt.decode(r_token, secret1, "HS256")
@@ -178,16 +188,16 @@ class RestfulAuth__Views(object):
                     if JWT_STORE_AS_SESSION:
                         if user.r_token != r_token:
                             return False #or to logout page
-                    token = generate_access_token(data['id'],secret)
-                    user.token = token
+                    a_token = generate_access_token(data['id'],secret)
+                    user.token = a_token
                     db.session.commit()
                     return True
                 else:
                     return False#to logout page
             else:
-                return # to the directed page
+                return True # to the directed page
         else: 
-            return #to login page
+            return False #to login page
 
     def login_required(self, func):
         @wraps(func)
@@ -240,6 +250,7 @@ def generate_access_token(self,uid,key):
     return jwt.encode(payload,key)
 
 def validate_token(self,token,secret):
+    #checking if token has expired or not
     try:
         jwt.verify(token,secret)
         return True
