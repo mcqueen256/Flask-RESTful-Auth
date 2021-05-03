@@ -8,7 +8,6 @@ cryptography==3.4.7
 docutils==0.17
 Flask==1.1.2
 Flask-Login==0.5.0
--e git+git@github.com:mcqueen256/Flask-RESTful-Auth.git@10e0153692667dce530868d66dda894cb0187c57#egg=Flask_RESTful_Auth
 Flask-SQLAlchemy==2.5.1
 greenlet==1.0.0
 idna==2.10
