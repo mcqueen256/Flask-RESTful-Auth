@@ -23,5 +23,9 @@ var/
 global.txt
 user_files/
 
+# Code Coverage
+.coverage
+coverage.xml
+
 # VS Code Editor
 /.vscode/
