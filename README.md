@@ -3,6 +3,7 @@
 # Flask RESTful Auth
 
 ![Test Status](https://github.com/mcqueen256/Flask-RESTful-Auth/actions/workflows/python-package.yml/badge.svg)
+[![codecov](https://codecov.io/gh/mcqueen256/Flask-RESTful-Auth/branch/main/graph/badge.svg?token=JIUXYF1HTT)](https://codecov.io/gh/mcqueen256/Flask-RESTful-Auth)
 
 This is where a long description of our package will go...
 
