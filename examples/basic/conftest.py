@@ -1,7 +1,7 @@
 import os
 import tempfile
 import pytest
-from examples.basic import server
+from . import server
 
 
 @pytest.fixture
