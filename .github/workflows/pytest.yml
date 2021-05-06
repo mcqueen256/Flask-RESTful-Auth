@@ -30,7 +30,7 @@ jobs:
     
     - name: Install Flask-RESTful-Auth
       run: |
-        python setup.py install
+        python setup.py develop
         
     - name: Lint with flake8
       run: |
