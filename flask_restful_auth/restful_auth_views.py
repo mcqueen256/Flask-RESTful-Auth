@@ -1,5 +1,5 @@
 from flask import current_app, make_response, redirect, request, url_for, Response
-from passlib.hash import sha256_crypt
+from passlib.hash import sha256_crypt as sc
 import uuid
 import jwt
 import datetime
@@ -92,8 +92,8 @@ class RestfulAuth__Views(object):
         if JWT_ENABLE:
             secret = current_app.config['SECRET']
             secret_1 = current_app.config['SECRET1']
-            r_token: str = generate_refresh_token(user.id,secret_1)
-            a_token: str = generate_access_token(user.id,secret)
+            r_token: str = generate_token(user.id,secret_1,time=120)
+            a_token: str = generate_token(user.id,secret,time=2)
             response.set_cookie(JWT_COOKIE_NAME, value=a_token)
             response.set_cookie(JWT_REF_COOKIE_NAME, value=r_token)
             
@@ -164,38 +164,44 @@ class RestfulAuth__Views(object):
         return True
         
     def refresh(self) -> bool:
-        '''
+        """
         After every refresh of webpage or when logging on to a new webpage
         This function, first confirms that user is authenticated and Access token has expired 
         Then using a refresh token, it generates a new access token
-
-        '''
+        
+        Returns:
+            bool: True if access/refresh key is still valid otherwise false 
+        """
+        
         if JWT_ENABLE:
             token = request.cookies.get(JWT_COOKIE_NAME)
             secret = current_app.config['SECRET']
             data = jwt.decode(token, secret, "HS256")
             id = data['id']
             user = self.UserClass.query.filter_by(id=id).first()
-            #checking if access token has expired or not
-            if not self.validate_token(token,secret) and user.is_authenticated:
-                r_token = request.cookies.get(JWT_REF_COOKIE_NAME)
-                secret_1 = current_app.config['SECRET1']
-                if self.validate_token(r_token,secret_1):
-                    data = jwt.decode(r_token, secret1, "HS256")
-                    user = self.UserClass.query.filter_by(id=data['id']).first()
-                    if user is none:
-                        return False # or to logout page
-                    if JWT_STORE_AS_SESSION:
-                        if user.r_token != r_token:
-                            return False #or to logout page
-                    a_token = generate_access_token(data['id'],secret)
-                    user.token = a_token
-                    db.session.commit()
-                    return True
+            if token is None: #if no token exist
+                return False #to logout page
+            if user.is_authenticated: #checking if user is already authenticated and logined
+                if not self.validate_token(token,secret): #checking if access token has expired or not
+                    r_token = request.cookies.get(JWT_REF_COOKIE_NAME)
+                    secret_1 = current_app.config['SECRET1']
+                    if self.validate_token(r_token,secret_1):
+                        data = jwt.decode(r_token, secret1, "HS256")
+                        user = self.UserClass.query.filter_by(id=data['id']).first()
+                        if user is None:
+                            return False # or to logout page
+                        if JWT_STORE_AS_SESSION:
+                            if user.r_token != r_token:
+                                return False #or to logout page
+                        a_token = generate_token(data['id'],secret,time=2)
+                        user.token = a_token
+                        db.session.commit()
+                        return True
+                    else:
+                        return False#to logout page
                 else:
-                    return False#to logout page
-            else:
-                return True # to the directed page
+                    return True # to the directed page
+        
         else: 
             return False #to login page
 
@@ -233,24 +239,44 @@ class RestfulAuth__Views(object):
         db.session.commit()
 
 def encoding_password(password):
+    """Encoding password for security purposes
+
+    Args:
+        password (string): User password
+
+    Returns:
+        String: Hash Password
+    """
     return sc.hash(password)
 
-def generate_refresh_token(self,uid,key):
+def generate_token(self,uid,key,time:int):
+    """
+    Generate tokens for authentication
+    Args:
+        uid (string): User Id
+        key (string): Secret key for encoding 
+        time (int): valid time period in minutes
+
+    Returns:
+        string: Encoded Token
+    """
     payload = {
                 'id': uid,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=time)
             }    
     return jwt.encode(payload,key)
 
-def generate_access_token(self,uid,key):
-    payload = {
-                'id': uid,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=2)
-            }    
-    return jwt.encode(payload,key)
 
 def validate_token(self,token,secret):
-    #checking if token has expired or not
+    """
+    checking if token has expired or not
+    Args:
+        token (string): token used for authentication
+        secret (string): secret key
+
+    Returns:
+        bool: true if token is still valid otherwise false
+    """
     try:
         jwt.verify(token,secret)
         return True
