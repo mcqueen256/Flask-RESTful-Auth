@@ -26,7 +26,6 @@ from flask_restful_auth.storage_adaptors import SQLAlchemyStorageAdaptor
 from pathlib import Path
 
 
-
 def create_app():
     """ Flask application factory. """
 
@@ -103,22 +102,32 @@ def create_app():
     
     return app
 
-def read_file_or_default(filename, default=''):
-    """Read the file from the server file system. If the file is not available,
-    write a file with some default content and return that content."""
+
+def read_file_or_default(filepath, default=b''):
+    """
+    Helper function.
+
+    Read the file from the server file system. If the file is not available,
+    write a file with some default content and return that content.
+
+    :param filepath: is the path to the file to read. If the file does not
+        exist, the default value is written.
+    :param default: is the byte string used if the file does not exist.
+    """
     try:
-        with open(filename, 'rb') as fin:
+        with open(filepath, 'rb') as fin:
             return fin.read()
     except FileNotFoundError:
-        with open(filename, 'wb') as fout:
+        with open(filepath, 'wb') as fout:
             fout.write(default)
         # Try again
         try:
-            with open(filename, 'rb') as fin:
+            with open(filepath, 'rb') as fin:
                 return fin.read()
         except FileNotFoundError:
             # On the second fail, return an error
             return ('failed to read server file', 500)
+
 
 # Start development web server
 if __name__ == '__main__':

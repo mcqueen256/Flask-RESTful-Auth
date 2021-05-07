@@ -137,7 +137,6 @@ class RestfulAuth__Views(object):
         # TODO: Below is slightly duplicated code
         if JWT_ENABLE:
             token = request.cookies.get(JWT_COOKIE_NAME)
-            print(token)
             if token is None:
                 return False # No token 
             try:
@@ -155,7 +154,30 @@ class RestfulAuth__Views(object):
                 return False
         return True
         
-
+    @property
+    def current_user(self):
+        """Get the current user object."""
+        # TODO: Below is slightly duplicated code
+        if JWT_ENABLE:
+            token = request.cookies.get(JWT_COOKIE_NAME)
+            if token is None:
+                return None # No token 
+            try:
+                secret = current_app.config['SECRET']
+                data = jwt.decode(token, secret, "HS256")
+                id = data['id']
+                user = self.storage.get_client_by_id(id)
+                if user is None:
+                    return None
+                if JWT_STORE_AS_SESSION:
+                    if user.token != token:
+                        return None
+            except Exception as e: # TODO: make exceptions specific, if evaluated to be necessary.
+                print('e', e)
+                return None
+        else:
+            raise "Placeholder error: "
+        return user
 
     def login_required(self, func):
         @wraps(func)

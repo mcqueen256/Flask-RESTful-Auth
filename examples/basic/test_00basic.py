@@ -58,6 +58,33 @@ def test_authorized_access_global_file(server):
     assert response.data == b'authorized text file data'
     return
 
+def test_unauthorized_access_another_users_file(server):
+    """
+    """
+    add_mock_user(server, 'alice', 'password')
+    add_mock_user(server, 'bob', 'test1234')
+    response = server.post(
+        '/user/login',
+        headers={"Authorization": "Basic " + base64.b64encode(b"bob:test1234").decode("utf-8")}
+    )
+    response = server.get('/text/user/alice.txt')
+    assert response.status_code == 401
+    assert response.data == b'unauthorized'
+    return
+
+def test_authorized_access_another_users_file(server):
+    """
+    """
+    add_mock_user(server, 'alice', 'password')
+    response = server.post(
+        '/user/login',
+        headers={"Authorization": "Basic " + base64.b64encode(b"alice:password").decode("utf-8")}
+    )
+    response = server.get('/text/user/alice.txt')
+    assert response.status_code == 200
+    assert response.data == b''
+    return
+
 def test_basic_auth_login_and_token(server):
     """
     Blackbox test. Tests the login without knowing how the server internally

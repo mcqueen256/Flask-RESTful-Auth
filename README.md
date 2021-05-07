@@ -2,7 +2,7 @@
 
 --------------------------------------------------------------------------------
 
-![Test Status](https://github.com/mcqueen256/Flask-RESTful-Auth/actions/workflows/pytest.yml/badge.svg)
+[![Test Status](https://github.com/mcqueen256/Flask-RESTful-Auth/actions/workflows/pytest.yml/badge.svg)](https://github.com/mcqueen256/Flask-RESTful-Auth/actions)
 [![codecov](https://codecov.io/gh/mcqueen256/Flask-RESTful-Auth/branch/main/graph/badge.svg?token=JIUXYF1HTT)](https://codecov.io/gh/mcqueen256/Flask-RESTful-Auth)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=mcqueen256_Flask-RESTful-Auth&metric=alert_status)](https://sonarcloud.io/dashboard?id=mcqueen256_Flask-RESTful-Auth)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)

@@ -21,7 +21,7 @@ var/
 
 # Testing
 global.txt
-user_files/
+testdata/
 
 # Code Coverage
 .coverage
