@@ -107,8 +107,7 @@ class RestfulAuth__Views(object):
 
         # Auqire the database adaptor
         # TODO: change to an adaptor class, don't use the database directly.
-        db = current_app.db
-        response = redirect(url_for('/'))
+        response = make_response("logout")
         clear_auth_cookie(response)
 
         user = None
@@ -129,9 +128,8 @@ class RestfulAuth__Views(object):
                 return response
         
         if user is not None:
-            user.is_authenticated = False
-            db.session.add(user)
-            db.session.commit()
+            self.storage.set_client_authenticated_status(user, False)
+            self.storage.save_client(user)
             
         return response
 

@@ -83,6 +83,17 @@ def test_login_and_authenticated(client):
         assert user.token is not None
     return
 
+def test_logout_and_token(client):
+    """
+    Blackbox test. Tests the logout without knowing how the server internally
+    works. Any cached token should be removed.
+    """
+
+    client.set_cookie('localhost', 'token', 'some token value')
+    response = client.post('/user/logout')
+    cookies = get_cookies(response)
+    assert 'token' in cookies
+    assert cookies['token'] == ''
 
 
 def test_missing_global_txt(client):
