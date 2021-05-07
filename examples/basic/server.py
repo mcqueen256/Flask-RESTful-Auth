@@ -23,6 +23,18 @@ from flask_restful_auth import RestfulAuth, login_required
 from flask import request
 from flask_login import UserMixin, login_required
 
+db = SQLAlchemy()
+# Create the user class.
+class User(db.Model, UserMixin):
+    ''' Setting up User'''
+    id = db.Column(db.String(36), primary_key=True)
+    is_authenticated = db.Column(db.Boolean, nullable=False)
+    is_active = db.Column(db.Boolean, nullable=False)
+    # User vereification
+    username = db.Column(db.String(60), nullable=False, unique=True)
+    password = db.Column(db.String(300), nullable=False)
+    token = db.Column(db.String(500), nullable=True)
+
 def create_app():
     """ Flask application factory. """
 
@@ -31,21 +43,8 @@ def create_app():
     app.config['SECRET'] = 'my little secret'
 
     # Initialise Flask-SQLAlchemy
-    db = SQLAlchemy(app)
-
+    db.init_app(app)
     app.db = db
-
-    # Create the user class.
-    class User(db.Model, UserMixin):
-        ''' Setting up User'''
-        id = db.Column(db.String(36), primary_key=True)
-        is_authenticated = db.Column(db.Boolean, nullable=False)
-        is_active = db.Column(db.Boolean, nullable=False)
-        # User vereification
-        username = db.Column(db.String(60), nullable=False, unique=True)
-        password = db.Column(db.String(300), nullable=False)
-        token = db.Column(db.String(500), nullable=True)
-
     # Create tables
     db.create_all()
 

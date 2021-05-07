@@ -1,11 +1,21 @@
 import base64
+from .server.create_app import User
+
 valid_credentials = base64.b64encode(b"u1:password").decode("utf-8")
+
+def action_login(server, username, password):
+    pass
+
+def action_signup(username, password):
+    pass
+
+def add_mock_user(server):
+    db = server.db
+
 
 def test_index(client):
     response = client.get('/')
     assert response.data == b'Index page'
-    # print(dir(response))
-    # print(response.data)
     return
 
 def test_unauthorized_access(client):
@@ -37,4 +47,5 @@ def test_authenticate_and_aquire_token(client):
     return
 
 
-
+def test_missing_global_txt(client):
+    pass
