@@ -1,9 +1,8 @@
-from flask import current_app, make_response, redirect, request, url_for, Response
+from flask import current_app, make_response, request, Response
 from passlib.hash import sha256_crypt
 import uuid
 import jwt
 import datetime
-from functools import wraps
 
 from flask_login import login_user, current_user
 
@@ -20,9 +19,9 @@ def clear_auth_cookie(response: Response) -> Response:
         response.set_cookie(JWT_COOKIE_NAME)
     return response
 
-class RestfulAuth__Views(object):
+class RestfulAuth__Routes(object):
 
-    def login_view(self):
+    def login_route(self):
 
         # Construct empty credentials
         user_identifier = None
@@ -103,7 +102,7 @@ class RestfulAuth__Views(object):
         
         return response
 
-    def logout_view(self):
+    def logout_route(self):
 
         # Auqire the database adaptor
         # TODO: change to an adaptor class, don't use the database directly.
@@ -133,65 +132,7 @@ class RestfulAuth__Views(object):
             
         return response
 
-    def is_authorized(self) -> bool:
-        # TODO: Below is slightly duplicated code
-        if JWT_ENABLE:
-            token = request.cookies.get(JWT_COOKIE_NAME)
-            if token is None:
-                return False # No token 
-            try:
-                secret = current_app.config['SECRET']
-                data = jwt.decode(token, secret, "HS256")
-                id = data['id']
-                user = self.storage.get_client_by_id(id)
-                if user is None:
-                    return False
-                if JWT_STORE_AS_SESSION:
-                    if user.token != token:
-                        return False
-            except Exception as e: # TODO: make exceptions specific, if evaluated to be necessary.
-                print('e', e)
-                return False
-        return True
-        
-    @property
-    def current_user(self):
-        """Get the current user object."""
-        # TODO: Below is slightly duplicated code
-        if JWT_ENABLE:
-            token = request.cookies.get(JWT_COOKIE_NAME)
-            if token is None:
-                return None # No token 
-            try:
-                secret = current_app.config['SECRET']
-                data = jwt.decode(token, secret, "HS256")
-                id = data['id']
-                user = self.storage.get_client_by_id(id)
-                if user is None:
-                    return None
-                if JWT_STORE_AS_SESSION:
-                    if user.token != token:
-                        return None
-            except Exception as e: # TODO: make exceptions specific, if evaluated to be necessary.
-                print('e', e)
-                return None
-        else:
-            raise "Placeholder error: "
-        return user
-
-    def login_required(self, func):
-        @wraps(func)
-        def decorated_view(*args, **kwargs):
-            # TODO: add a global disable?
-            if current_app.config.get('LOGIN_DISABLED'):
-                return func(*args, **kwargs)
-            elif not self.is_authorized():
-                # return some_unauthorized_response_builder()
-                return make_response('not authorized', 401)
-            return func(*args, **kwargs)
-        return decorated_view
-
-    def register_view(self):
+    def register_route(self):
 
         response = make_response('success')
 
