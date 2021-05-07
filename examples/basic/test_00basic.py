@@ -58,7 +58,7 @@ def test_basic_auth_login_and_token(server):
     payload_segment = token.split('.')[1] # get the payload from the jwt
     import json, base64
     payload_segment += '=='
-    payload_str = base64.decodestring(payload_segment.encode('ascii'))
+    payload_str = base64.decodebytes(payload_segment.encode('ascii'))
     payload = json.loads(payload_str)
     assert 'exp' in payload
     assert 'id' in payload
