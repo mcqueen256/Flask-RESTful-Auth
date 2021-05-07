@@ -1,12 +1,12 @@
 import os
 import tempfile
 import pytest
-from . import server
+from . import server as example_server
 
 
 @pytest.fixture
 def app():
-    app = server.create_app()
+    app = example_server.create_app()
     with app.app_context():
         pass
     yield app
