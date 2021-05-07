@@ -49,19 +49,6 @@ def create_app():
     # Create tables
     db.create_all()
 
-    import uuid
-    from passlib.hash import sha256_crypt
-    new_user = User(
-        id=str(uuid.uuid4()),
-        is_active=True,
-        is_authenticated=False,
-        password=sha256_crypt.hash('password'),
-        username='u1',
-    )
-    #add to database
-    db.session.add(new_user)
-    db.session.commit()
-
     # create database addaptor
     storage = SQLAlchemyStorageAdaptor(db, User)
 

@@ -11,6 +11,9 @@ object should have all the necessary attributes.
 
 """
 
+import uuid
+from passlib.hash import sha256_crypt
+
 class StorageAdaptorInterface(object):
     """`StorageAdaptorInterface` is an interface that describes the minimum
     required actions (function) the database will perform. When implementing
@@ -65,3 +68,13 @@ class SQLAlchemyStorageAdaptor(StorageAdaptorInterface):
     def save_client(self, client):
         self.db.session.add(client)
         self.db.session.commit()
+    
+    def create_client(self, username, password):
+        new_user = self.ClientClass(
+            id=str(uuid.uuid4()),
+            is_active=True,
+            is_authenticated=False,
+            password=sha256_crypt.hash(password),
+            username=username,
+        )
+        return new_user
