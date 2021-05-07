@@ -170,25 +170,26 @@ class RestfulAuth__Views(object):
         return decorated_view
 
     def register_view(self):
-        User = current_app.restful_auth.UserClass
-        db = current_app.db
 
-        data = request.form
+        response = make_response('success')
+
+        username = None
+        password = None
+        if request.form['username'] is not None and request.form['password'] is not None:
+            username = request.form['username']
+            password = request.form['password']
+        else:
+            return reject_login_attempt('missing username or password')
 
         #securing the password
-        password = encoding_password(data['password'])
+        password = encoding_password(password)
     
         #create new user
-        new_user = User(
-            id=uuid.uuid4(),
-            is_active=True,
-            password=password,
-            username=data['username']
-        )
-    
         #add to database
-        db.session.add(new_user)
-        db.session.commit()
+        new_user = self.storage.create_client(username, password)
+        self.storage.save_client(new_user)
+
+        return response
 
 def encoding_password(password):
-    return sc.hash(password)
+    return sha256_crypt.hash(password)

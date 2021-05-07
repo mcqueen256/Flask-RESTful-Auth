@@ -1,4 +1,5 @@
 import base64
+import json
 
 valid_credentials = base64.b64encode(b"u1:password").decode("utf-8")
 
@@ -56,7 +57,6 @@ def test_basic_auth_login_and_token(server):
     # check the contents of the Token
     token = cookies['token']
     payload_segment = token.split('.')[1] # get the payload from the jwt
-    import json, base64
     payload_segment += '=='
     payload_str = base64.decodebytes(payload_segment.encode('ascii'))
     payload = json.loads(payload_str)
@@ -99,7 +99,34 @@ def test_logout_and_token(server):
     cookies = get_cookies(response)
     assert 'token' in cookies
     assert cookies['token'] == ''
+    return
 
+def test_register_user(server):
+    """
+    Blackbox test. Create a new user with a token on creation.
+    """
+    response = server.post('/user/signup', data={'username': 'bob', 'password': 'test1234'})
+    
+    assert response.status_code == 200
+    assert response.data == b'success'
+    return
+
+def test_register_adds_user_to_database(server):
+    """
+    Whitebox test. Check the databse contains the registered user.
+    """
+    # 1. Check there is no such user in the database
+    with server.application.test_request_context('/'):
+        user = server.application.restful_auth.storage.get_client_by_username('alice')
+        assert user == None
+    # 2. Register user
+    response = server.post('/user/signup', data={'username': 'alice', 'password': 'test1234'})
+    # 3. Check user is in the database
+    with server.application.test_request_context('/'):
+        user = server.application.restful_auth.storage.get_client_by_username('alice')
+        assert user != None
+        assert user.username == 'alice'
+    return
 
 def test_missing_global_txt(server):
     pass
