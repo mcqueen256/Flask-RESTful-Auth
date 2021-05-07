@@ -4,27 +4,23 @@
 
 from flask import abort, Flask
 from .restful_auth_views import RestfulAuth__Views
+from .restful_auth_decorators import RestfulAuth__Decorators
 from . import default_config as conf
 from flask_login import LoginManager
 
-class RestfulAuth(RestfulAuth__Views):
-    def __init__(self, app: Flask, UserClass):
-        self.app: Flask = app
-        self.init_app(app, UserClass)
+from .storage_adaptors import StorageAdaptorInterface
 
-    def init_app(self, app, UserClass):
+class RestfulAuth(RestfulAuth__Views, RestfulAuth__Decorators):
+    def __init__(self, app: Flask, storage: StorageAdaptorInterface):
+        self.app: Flask = app
+        self.init_app(app, storage)
+
+    def init_app(self, app: Flask, storage: StorageAdaptorInterface):
         # bind Flask-RESTful-Auth to the app
         app.restful_auth = self
-
-        self.UserClass = UserClass
-
-        self._login_manager = LoginManager()
-        self._login_manager.init_app(app)
-        @self._login_manager.user_loader
-        def load_user(id):
-            return UserClass.query.filter_by(id=id).first()
-
         self._add_url_routes(app)
+        # bind the data storage adaptor
+        self.storage: StorageAdaptorInterface = storage
 
     def _add_url_routes(self, app: Flask):
 

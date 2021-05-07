@@ -23,11 +23,6 @@ def clear_auth_cookie(response: Response) -> Response:
 class RestfulAuth__Views(object):
 
     def login_view(self):
-        User = current_app.restful_auth.UserClass
-        # Auqire the database adaptor
-        # TODO: change to an adaptor class, don't use the database directly.
-        db = current_app.db
-
 
         # Construct empty credentials
         user_identifier = None
@@ -65,7 +60,7 @@ class RestfulAuth__Views(object):
 
         # Query datastore for the user.
 
-        user = User.query.filter_by(username = user_identifier).first()
+        user = self.storage.get_client_by_username(user_identifier)
         if not user:
             return reject_login_attempt(LOGIN_USER_NOT_FOUND_MESSAGE)
 
@@ -83,7 +78,7 @@ class RestfulAuth__Views(object):
 
         # At this point, the user is considered authenticated. Build the response.
 
-        user.is_authenticated = True
+        self.storage.set_client_authenticated_status(user, True)
 
         # TODO: check the users active status
 
@@ -99,17 +94,17 @@ class RestfulAuth__Views(object):
             response.set_cookie(JWT_COOKIE_NAME, value=token)
             if JWT_STORE_AS_SESSION:
                 user.token = token
+                self.storage.set_client_token(user, token)
         else:
             # TODO: Workout what happens here (config error 500).
             pass
 
-        db.session.add(user)
-        db.session.commit()
+        self.storage.save_client(user)
+        
         return response
 
     def logout_view(self):
 
-        User = current_app.restful_auth.UserClass
         # Auqire the database adaptor
         # TODO: change to an adaptor class, don't use the database directly.
         db = current_app.db
@@ -125,7 +120,8 @@ class RestfulAuth__Views(object):
                 secret = current_app.config['SECRET']
                 data = jwt.decode(token, secret, "HS256")
                 id = data['id']
-                user = User.query.filter_by(id=id).first()
+                user = self.storage.get_client_by_id(id)
+                # TODO: check if the client is None
                 if JWT_STORE_AS_SESSION:
                     user.token = None
             except Exception as e: # TODO: make exceptions specific, if evaluated to be necessary.
@@ -150,7 +146,7 @@ class RestfulAuth__Views(object):
                 secret = current_app.config['SECRET']
                 data = jwt.decode(token, secret, "HS256")
                 id = data['id']
-                user = self.UserClass.query.filter_by(id=id).first()
+                user = self.storage.get_client_by_id(id)
                 if user is None:
                     return False
                 if JWT_STORE_AS_SESSION:
