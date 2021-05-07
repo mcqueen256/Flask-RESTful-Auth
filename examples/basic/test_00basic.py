@@ -29,15 +29,33 @@ def test_index(server):
     assert response.data == b'Index page'
     return
 
-def test_unauthorized_access(server):
+def test_unauthorized_access_user_file(server):
     """
-
-    Prerequisits. The client must exist in the database.
-
     """
     response = server.get('/text/user/u1.txt')
     assert response.status_code == 401
     assert response.data == b'not authorized'
+    return
+
+def test_unauthorized_access_global_file(server):
+    """
+    """
+    response = server.get('/text/global.txt')
+    assert response.status_code == 401
+    assert response.data == b'not authorized'
+    return
+
+def test_authorized_access_global_file(server):
+    """
+    """
+    add_mock_user(server, 'u1', 'password')
+    response = server.post(
+        '/user/login',
+        headers={"Authorization": "Basic " + valid_credentials}
+    )
+    response = server.get('/text/global.txt')
+    assert response.status_code == 200
+    assert response.data == b'authorized text file data'
     return
 
 def test_basic_auth_login_and_token(server):

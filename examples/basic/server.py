@@ -17,7 +17,7 @@
 # - /user/login
 # - /user/logout
 
-from flask import Flask
+from flask import Flask, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful_auth import RestfulAuth, login_required
 from flask_restful_auth.storage_adaptors import SQLAlchemyStorageAdaptor
@@ -45,6 +45,7 @@ def create_app():
         username = db.Column(db.String(60), nullable=False, unique=True)
         password = db.Column(db.String(300), nullable=False)
         token = db.Column(db.String(500), nullable=True)
+
     app.db = db
     # Create tables
     db.create_all()
@@ -55,34 +56,36 @@ def create_app():
     # Initialise Flask-RESTful-Auth
     auth = RestfulAuth(app, storage)
 
-    @auth.client_getter
-    def client_getter(id):
-        # TODO: Maybe rename to load_user?
-        return User.query.filter_by(id=id).first()
-
-
     @app.route('/')
     def index():
         return "Index page"
 
     @app.route('/text/global.txt', methods=['GET', 'POST', 'PUT'])
-    # @login_required 
+    @auth.login_required 
     def resource_global():
-        print(request.data)
         if request.method == 'GET':
             #read the contents of the file and return it
             try:
                 with open('global.txt', 'rb') as fin:
                     return fin.read()
-            except ValueError:
-                print('File Not Found')
+            except FileNotFoundError:
+                with open('global.txt', 'wb') as fout:
+                    fout.write(b'authorized text file data')
+                # Try again
+                try:
+                    with open('global.txt', 'rb') as fin:
+                        return fin.read()
+                except FileNotFoundError:
+                    # On the second fail, return an error
+                    return ('failed to read server file', 500)
         if request.method in ['POST', 'PUT']:
             #read the contents of the file and return it
             with open('global.txt', 'wb') as fout:
                 #arguments for write
                 fout.write(request.data)
                 return "ok"
-        return "TODO"
+        # Unreachable
+        return
 
     @app.route('/text/user/<username>.txt')
     @auth.login_required
