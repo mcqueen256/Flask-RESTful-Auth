@@ -17,12 +17,13 @@
 # - /user/login
 # - /user/logout
 
-from flask import Flask, make_response
+from flask import Flask
+from flask import request, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful_auth import RestfulAuth, login_required
 from flask_restful_auth.storage_adaptors import SQLAlchemyStorageAdaptor
-from flask import request
-from flask_login import UserMixin, login_required
+
+from pathlib import Path
 
 
 
@@ -36,7 +37,7 @@ def create_app():
     # Initialise Flask-SQLAlchemy
     db = SQLAlchemy(app)
     # Create the user class.
-    class User(db.Model, UserMixin):
+    class User(db.Model):
         ''' Setting up User'''
         id = db.Column(db.String(36), primary_key=True)
         is_authenticated = db.Column(db.Boolean, nullable=False)
@@ -52,9 +53,12 @@ def create_app():
 
     # create database addaptor
     storage = SQLAlchemyStorageAdaptor(db, User)
-
     # Initialise Flask-RESTful-Auth
     auth = RestfulAuth(app, storage)
+
+    # make application directories
+    Path('testdata/text/').mkdir(parents=True, exist_ok=True)
+    Path('testdata/text/user/').mkdir(parents=True, exist_ok=True)
 
     @app.route('/')
     def index():
@@ -65,22 +69,10 @@ def create_app():
     def resource_global():
         if request.method == 'GET':
             #read the contents of the file and return it
-            try:
-                with open('global.txt', 'rb') as fin:
-                    return fin.read()
-            except FileNotFoundError:
-                with open('global.txt', 'wb') as fout:
-                    fout.write(b'authorized text file data')
-                # Try again
-                try:
-                    with open('global.txt', 'rb') as fin:
-                        return fin.read()
-                except FileNotFoundError:
-                    # On the second fail, return an error
-                    return ('failed to read server file', 500)
+            return read_file_or_default('testdata/text/global.txt', default=b'authorized text file data')
         if request.method in ['POST', 'PUT']:
             #read the contents of the file and return it
-            with open('global.txt', 'wb') as fout:
+            with open('testdata/text/global.txt', 'wb') as fout:
                 #arguments for write
                 fout.write(request.data)
                 return "ok"
@@ -90,9 +82,43 @@ def create_app():
     @app.route('/text/user/<username>.txt')
     @auth.login_required
     def resouce_user(username):
-        return "TODO"
+        # User constraint
+        user = auth.current_user
+        if not user:
+            return 'unauthorized', 401
+        if user.username != username:
+            return 'unauthorized', 401
+        # logged in must be the correct user. Process request
+        if request.method == 'GET':
+            #read the contents of the file and return it
+            return read_file_or_default(f'testdata/text/user/{username}.txt')
+        if request.method in ['POST', 'PUT']:
+            #read the contents of the file and return it
+            with open(f'testdata/text/user/{username}.txt', 'wb') as fout:
+                #arguments for write
+                fout.write(request.data)
+                return "ok"
+        # Unreachable
+        return
     
     return app
+
+def read_file_or_default(filename, default=''):
+    """Read the file from the server file system. If the file is not available,
+    write a file with some default content and return that content."""
+    try:
+        with open(filename, 'rb') as fin:
+            return fin.read()
+    except FileNotFoundError:
+        with open(filename, 'wb') as fout:
+            fout.write(default)
+        # Try again
+        try:
+            with open(filename, 'rb') as fin:
+                return fin.read()
+        except FileNotFoundError:
+            # On the second fail, return an error
+            return ('failed to read server file', 500)
 
 # Start development web server
 if __name__ == '__main__':
