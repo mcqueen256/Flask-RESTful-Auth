@@ -71,8 +71,11 @@ def create_app():
         print(request.data)
         if request.method == 'GET':
             #read the contents of the file and return it
-            with open('global.txt', 'rb') as fin:
-                return fin.read()
+            try:
+                with open('global.txt', 'rb') as fin:
+                    return fin.read()
+            except ValueError:
+                print('File Not Found')
         if request.method in ['POST', 'PUT']:
             #read the contents of the file and return it
             with open('global.txt', 'wb') as fout:
