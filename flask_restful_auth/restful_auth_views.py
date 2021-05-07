@@ -206,6 +206,11 @@ class RestfulAuth__Views(object):
         #securing the password
         password = encoding_password(password)
     
+        # Check the user does not already exist
+        client = self.storage.get_client_by_username(username)
+        if client is not None:
+            return 'already registered', 401 # TODO: is this the correct error code?
+
         #create new user
         #add to database
         new_user = self.storage.create_client(username, password)

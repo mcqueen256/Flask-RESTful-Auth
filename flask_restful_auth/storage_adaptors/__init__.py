@@ -70,6 +70,10 @@ class SQLAlchemyStorageAdaptor(StorageAdaptorInterface):
         self.db.session.commit()
     
     def create_client(self, username, password):
+        # Check if the client already exists.
+        client = self.get_client_by_username(username)
+        if client is not None:
+            return None # Not allowed to re-create clients.
         new_user = self.ClientClass(
             id=str(uuid.uuid4()),
             is_active=True,

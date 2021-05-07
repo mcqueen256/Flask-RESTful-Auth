@@ -173,5 +173,12 @@ def test_register_adds_user_to_database(server):
         assert user.username == 'alice'
     return
 
-def test_missing_global_txt(server):
-    pass
+def test_register_user_twice(server):
+    response = server.post('/user/signup', data={'username': 'bob', 'password': 'test1234'})
+    assert response.status_code == 200
+    assert response.data == b'success'
+
+    response = server.post('/user/signup', data={'username': 'bob', 'password': 'test1234'})
+    assert response.status_code == 401
+    assert response.data == b'already registered'
+    return
