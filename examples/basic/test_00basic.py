@@ -23,29 +23,29 @@ def get_cookies(response):
     }
     return cookies
 
-def test_index(client):
-    response = client.get('/')
+def test_index(server):
+    response = server.get('/')
     assert response.data == b'Index page'
     return
 
-def test_unauthorized_access(client):
+def test_unauthorized_access(server):
     """
 
     Prerequisits. The client must exist in the database.
 
     """
-    response = client.get('/text/user/u1.txt')
+    response = server.get('/text/user/u1.txt')
     assert response.status_code == 401
     assert response.data == b'not authorized'
     return
 
-def test_basic_auth_login_and_token(client):
+def test_basic_auth_login_and_token(server):
     """
     Blackbox test. Tests the login without knowing how the server internally
     works. Use basic auth and check the token is valid.
     """
-    add_mock_user(client, 'u1', 'password')
-    response = client.post(
+    add_mock_user(server, 'u1', 'password')
+    response = server.post(
         '/user/login',
         headers={"Authorization": "Basic " + valid_credentials}
     )
@@ -64,29 +64,29 @@ def test_basic_auth_login_and_token(client):
     assert 'id' in payload
     return
 
-def test_login_and_authenticated(client):
+def test_login_and_authenticated(server):
     """
     Whitebox test. Check the internal client variables are being set on login.
     """
-    add_mock_user(client, 'u1', 'password')
+    add_mock_user(server, 'u1', 'password')
     # Before Login
-    with client.application.test_request_context('/'):
-        user = client.application.restful_auth.storage.get_client_by_username('u1')
+    with server.application.test_request_context('/'):
+        user = server.application.restful_auth.storage.get_client_by_username('u1')
         assert user.is_authenticated == False
         assert user.token == None
-    response = client.post(
+    response = server.post(
         '/user/login',
         headers={"Authorization": "Basic " + valid_credentials}
     )
     # If the assertion below fails, also check the test_basic_auth_login test.
     # After Login
-    with client.application.test_request_context('/'):
-        user = client.application.restful_auth.storage.get_client_by_username('u1')
+    with server.application.test_request_context('/'):
+        user = server.application.restful_auth.storage.get_client_by_username('u1')
         assert user.is_authenticated == True
         assert user.token is not None
     return
 
-def test_logout_and_token(client):
+def test_logout_and_token(server):
     """
     Blackbox test. Tests the logout without knowing how the server internally
     works. Any cached token should be removed.
@@ -94,12 +94,12 @@ def test_logout_and_token(client):
 
     # TODO: this test works but does not check the edge cases for a user.
 
-    client.set_cookie('localhost', 'token', 'some token value')
-    response = client.post('/user/logout')
+    server.set_cookie('localhost', 'token', 'some token value')
+    response = server.post('/user/logout')
     cookies = get_cookies(response)
     assert 'token' in cookies
     assert cookies['token'] == ''
 
 
-def test_missing_global_txt(client):
+def test_missing_global_txt(server):
     pass

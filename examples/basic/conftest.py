@@ -13,5 +13,5 @@ def app():
     return
 
 @pytest.fixture
-def client(app):
+def server(app):
     return app.test_client()
