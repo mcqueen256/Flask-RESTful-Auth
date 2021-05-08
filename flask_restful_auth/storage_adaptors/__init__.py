@@ -61,6 +61,8 @@ class SQLAlchemyStorageAdaptor(StorageAdaptorInterface):
 
     def set_client_token(self, client, token: str):
         client.token = token
+    def set_client_Refresh_token(self, client, token: str):
+        client.r_token = token
 
     def set_client_authenticated_status(self, client, status: bool):
         client.is_authenticated = status

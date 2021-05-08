@@ -84,16 +84,16 @@ class RestfulAuth__Routes(object):
         response = make_response("ok", 200)
 
         if JWT_ENABLE:
-            payload = {
-                'id': user.id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-            }
             secret = current_app.config['SECRET']
-            token: str = jwt.encode(payload, secret)
+            token: str = generate_token(user.id,secret,2) #access token, valid for 2 minutes
             response.set_cookie(JWT_COOKIE_NAME, value=token)
+            secret2 = current_app.config['SECRET2']
+            r_token: str = generate_token(user.id,secret2,60) # Refresh token, valid for 60 minutes
             if JWT_STORE_AS_SESSION:
-                user.token = token
+                user.token = token #access token
+                user.r_token = r_token #refresh token
                 self.storage.set_client_token(user, token)
+                self.storage.set_client_Refresh_token_token(user, r_token)
         else:
             # TODO: Workout what happens here (config error 500).
             pass
@@ -159,5 +159,86 @@ class RestfulAuth__Routes(object):
 
         return response
 
+    def refresh(self) -> bool:
+        """
+        After every refresh of webpage or when logging on to a new webpage
+        This function, first confirms that  Access token has expired or not
+        if it has,Then using a refresh token, it generates a new access token
+        
+        Returns:
+            bool: True if access/refresh key is still valid otherwise false 
+        """
+        
+        if JWT_ENABLE:
+            token = request.cookies.get(JWT_COOKIE_NAME)
+            secret = current_app.config['SECRET']
+            
+            if token is None: #if no token exist
+                return False #to logout/logout page
+            if validate_token(token=token,secret=secret):
+                return True #to Directed Page
+            else:
+                r_token = request.cookies.get(JWT_REF_COOKIE_NAME)
+                secret_1 = current_app.config['SECRET1']
+                if self.validate_token(r_token,secret_1):
+                    data = jwt.decode(r_token, secret1, "HS256")
+                    user = self.storage.get_client_by_id(id).first()
+                    if user is None:
+                        return False # to logout/login page
+                    if JWT_STORE_AS_SESSION:
+                        if user.r_token != r_token:
+                            return False #to logout/login page
+                    a_token = generate_token(data['id'],secret,time=2)
+                    user.token = a_token
+                    self.storage.set_client_token(user, a_token)
+                    self.storage.save_client(user)
+                    return True #To directed Page
+                else:
+                    return False #to logout/login page
+        else:
+            return False #to logout/login page
+
 def encoding_password(password):
-    return sha256_crypt.hash(password)
+    """Encoding password for security purposes
+
+    Args:
+        password (string): User password
+
+    Returns:
+        String: Hash Password
+    """
+    return sc.hash(password)
+
+def generate_token(uid,key,time:int):
+    """
+    Generate tokens for authentication
+    Args:
+        uid (string): User Id
+        key (string): Secret key for encoding 
+        time (int): valid time period in minutes
+
+    Returns:
+        string: Encoded Token
+    """
+    payload = {
+                'id': uid,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=time)
+            }    
+    return jwt.encode(payload,key)
+
+
+def validate_token(token,secret):
+    """
+    checking if token has expired or not
+    Args:
+        token (string): token used for authentication
+        secret (string): secret key
+
+    Returns:
+        bool: true if token is still valid otherwise false
+    """
+    try:
+        jwt.verify(token,secret)
+        return True
+    except:
+        return False
