@@ -84,16 +84,16 @@ class RestfulAuth__Routes(object):
         response = make_response("ok", 200)
 
         if JWT_ENABLE:
-            payload = {
-                'id': user.id,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-            }
             secret = current_app.config['SECRET']
-            token: str = jwt.encode(payload, secret)
+            token: str = generate_token(user.id,secret,2) #access token, valid for 2 minutes
             response.set_cookie(JWT_COOKIE_NAME, value=token)
+            secret2 = current_app.config['SECRET2']
+            r_token: str = generate_token(user.id,secret2,60) # Refresh token, valid for 60 minutes
             if JWT_STORE_AS_SESSION:
-                user.token = token
+                user.token = token #access token
+                user.r_token = r_token #refresh token
                 self.storage.set_client_token(user, token)
+                self.storage.set_client_Refresh_token_token(user, r_token)
         else:
             # TODO: Workout what happens here (config error 500).
             pass
@@ -182,7 +182,7 @@ class RestfulAuth__Routes(object):
                 secret_1 = current_app.config['SECRET1']
                 if self.validate_token(r_token,secret_1):
                     data = jwt.decode(r_token, secret1, "HS256")
-                    user = self.UserClass.query.filter_by(id=data['id']).first()
+                    user = self.storage.get_client_by_id(id).first()
                     if user is None:
                         return False # to logout/login page
                     if JWT_STORE_AS_SESSION:
@@ -190,7 +190,8 @@ class RestfulAuth__Routes(object):
                             return False #to logout/login page
                     a_token = generate_token(data['id'],secret,time=2)
                     user.token = a_token
-                    db.session.commit()
+                    self.storage.set_client_token(user, a_token)
+                    self.storage.save_client(user)
                     return True #To directed Page
                 else:
                     return False #to logout/login page

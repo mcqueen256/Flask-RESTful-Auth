@@ -13,8 +13,10 @@ JWT_ENABLE = True
 """"""
 
 JWT_COOKIE_NAME = 'token'
+JWT_REF_COOKIE_NAME = 'refresh_token'
 
 JWT_STORE_AS_SESSION = True
+
 """
 JWT_STORE_AS_SESSION
     If True, the JWT will be stored in the database and used secondary source
