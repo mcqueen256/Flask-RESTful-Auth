@@ -209,7 +209,7 @@ def encoding_password(password):
     """
     return sc.hash(password)
 
-def generate_token(self,uid,key,time:int):
+def generate_token(uid,key,time:int):
     """
     Generate tokens for authentication
     Args:
