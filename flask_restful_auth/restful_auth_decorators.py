@@ -5,7 +5,13 @@ from functools import wraps
 from .default_config import *
 
 class RestfulAuth__Decorators(object):
+    """
+    """
     def login_required(self, func):
+        """
+        Limit the access to the route to clients that are logged in.
+        :return: The allocated route if the client is logged in, otherwise an unathorised response.
+        """
         @wraps(func)
         def decorated_view(*args, **kwargs):
             # TODO: add a global disable?

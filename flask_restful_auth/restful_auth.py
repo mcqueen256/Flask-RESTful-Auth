@@ -14,6 +14,9 @@ import datetime
 from .storage_adaptors import StorageAdaptorInterface
 
 class RestfulAuth(RestfulAuth__Routes, RestfulAuth__Decorators):
+    """The `RestfulAuth` class is the middle ware that offers the user
+    management and security features of this library.
+    """
     def __init__(self, app: Flask, storage: StorageAdaptorInterface):
         self.app: Flask = app
         self.init_app(app, storage)
@@ -26,7 +29,10 @@ class RestfulAuth(RestfulAuth__Routes, RestfulAuth__Decorators):
         self.storage: StorageAdaptorInterface = storage
     
     def is_authorized(self) -> bool:
-        # TODO: Below is slightly duplicated code
+        """Checks if the current user is logged in. The login is detected by a given identity token.
+        :return: True if the token indicated the user is logged in. Otherwise false.
+        :rtype: bool
+        """
         if JWT_ENABLE:
             token = request.cookies.get(JWT_COOKIE_NAME)
             if token is None:
