@@ -45,6 +45,7 @@ def create_app():
         username = db.Column(db.String(60), nullable=False, unique=True)
         password = db.Column(db.String(300), nullable=False)
         token = db.Column(db.String(500), nullable=True)
+        r_token = db.Column(db.String(500), nullable=True)
 
     app.db = db
     # Create tables

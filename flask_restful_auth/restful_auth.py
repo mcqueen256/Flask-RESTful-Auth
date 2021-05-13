@@ -3,7 +3,7 @@
 """
 
 from flask import Flask, abort, current_app, request
-from .restful_auth_routes import RestfulAuth__Routes
+from .restful_auth_routes import RestfulAuth__Routes,validate_token
 from .restful_auth_decorators import RestfulAuth__Decorators
 from .default_config import *
 from functools import wraps
@@ -29,21 +29,117 @@ class RestfulAuth(RestfulAuth__Routes, RestfulAuth__Decorators):
             token = request.cookies.get(JWT_COOKIE_NAME)
             if token is None:
                 return False # No token 
-            try:
-                secret = current_app.config['SECRET']
-                data = jwt.decode(token, secret, "HS256")
-                id = data['id']
-                user = self.storage.get_client_by_id(id)
-                if user is None:
-                    return False
-                if JWT_STORE_AS_SESSION:
-                    if user.token != token:
+            secret = current_app.config['SECRET']
+            if validate_token(token=token,secret=secret):
+                try:                   
+                    data = jwt.decode(token, secret, "HS256")
+                    id = data['id']
+                    user = self.storage.get_client_by_id(id)
+                    if user is None:
                         return False
-            except Exception as e: # TODO: make exceptions specific, if evaluated to be necessary.
-                print('e', e)
-                return False
+                    if JWT_STORE_AS_SESSION:
+                        if user.token != token:
+                            return False
+                except Exception as e: # TODO: make exceptions specific, if evaluated to be necessary.
+                    print('e', e)
+                    return False
+            else:
+                status = self.refresh()
+                if not status:
+                    return False
         return True
+    
+    def refresh(self) -> bool:
+        """
+            **Refresh Tokens**
+            After every refresh of webpage or when logging on to a new webpage
+            This function, first confirms that  Access token has expired or not
+            if it has,Then using a refresh token, it generates a new access token
+            
+            :Returns:
+                bool: True if access/refresh key is still valid otherwise false 
+        """
         
+        if JWT_ENABLE:
+            token = request.cookies.get(JWT_COOKIE_NAME)
+            secret = current_app.config['SECRET']
+            
+            if token is None: #if no token exist
+                return False #unauthorised access
+            if self.validate_token(token=token,secret=secret):
+                return True #to Directed Page
+            else:
+                r_token = request.cookies.get(JWT_REF_COOKIE_NAME)
+                secret_1 = current_app.config['SECRET1']
+                if self.validate_token(r_token,secret_1):
+                    data = jwt.decode(r_token, secret_1, "HS256")
+                    id = data['id']
+                    user = self.storage.get_client_by_id(id).first()
+                    if user is None:
+                        return False # to logout/login page
+                    if JWT_STORE_AS_SESSION:
+                        if user.r_token != r_token:
+                            return False #to logout/login page
+                    a_token = self.generate_token(data['id'],secret,time=2)
+                    user.token = a_token
+                    self.storage.set_client_token(user, a_token)
+                    self.storage.save_client(user)
+                    return True #To directed Page
+                else:
+                    return False #to logout/login page
+        else:
+            return False #to logout/login page
+
+    
+    def encoding_password(password):
+        """
+            **Hashing Password**
+            Encoding password for security purposes
+
+            :Args:
+                password (string): User password
+
+            :Returns:
+                String: Hash Password
+        """
+        return sc.hash(password)
+
+    def generate_token(uid,key,time:int):
+        """
+            **Create Jwt Tokens**
+            Generate tokens for authentication purposes
+            :Args:
+                uid (string): User Id
+                key (string): Secret key for encoding 
+                time (int): valid time period in minutes
+
+            :Returns:
+                string: Encoded Token
+        """
+        payload = {
+                    'id': uid,
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=time)
+                }    
+        return jwt.encode(payload,key)
+
+
+    def validate_token(token,secret):
+        """
+            **Token Status Checkup**
+            The function checks if token has expired or not
+            :Args:
+                token (string): token used for authentication
+                secret (string): secret key
+
+            :Returns:
+                bool: true if token is still valid otherwise false
+        """
+        try:
+            jwt.verify(token,secret)
+            return True
+        except:
+            return False
+
     @property
     def current_user(self):
         """Get the current user object."""

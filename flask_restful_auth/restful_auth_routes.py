@@ -1,5 +1,5 @@
 from flask import current_app, make_response, request, Response
-from passlib.hash import sha256_crypt
+from passlib.hash import sha256_crypt as sc
 import uuid
 import jwt
 import datetime
@@ -9,20 +9,44 @@ from flask_login import login_user, current_user
 from .default_config import *
 
 def reject_login_attempt(message: str) -> Response:
+    """
+        **Reject Login**
+        This function reject the unauthorised login atempt and cler all the authorization cookie 
+
+        :Args:
+            message (str): message 
+        :Returns:
+            Response: (to be discussed)
+    """
     response = make_response(message, 401)
     clear_auth_cookie(response)
     return response
 
 
 def clear_auth_cookie(response: Response) -> Response:
+    """
+        **Clear the browser cookies**
+        This function clears the cookies for authorization
+        :Args:
+            response (Response): (To be discussed)
+
+        :Returns:
+            Response: (To be discussed)
+    """
     if JWT_ENABLE:
         response.set_cookie(JWT_COOKIE_NAME)
+        response.set_cookie(JWT_REF_COOKIE_NAME)
     return response
 
 class RestfulAuth__Routes(object):
 
     def login_route(self):
-
+        """
+            **Login User**
+            The function verifies user credentials and generate jwt tokens and login the user
+            :Returns:
+                response [Response]: A string telling us if login is successfull or not
+        """
         # Construct empty credentials
         user_identifier = None
         password = None
@@ -67,7 +91,7 @@ class RestfulAuth__Routes(object):
 
         password_verified = False
         if AUTHENTICATION_PASSWORD_STORAGE_ENCRYPTION_SALT_SHA256:
-            password_verified = sha256_crypt.verify(password, user.password)
+            password_verified = sc.verify(password, user.password)
         else:
             # TODO: Workout what happens here (config error 500).
             pass
@@ -103,15 +127,23 @@ class RestfulAuth__Routes(object):
         return response
 
     def logout_route(self):
+        """
+            **Logout User**
+            The function clears the stored jwt tokens from cookies and user databse
+            and logout the user
+            
+            :Returns:
+                response [Response]: A string telling us if logout is successfull or not
+        """
 
         # Auqire the database adaptor
         # TODO: change to an adaptor class, don't use the database directly.
         response = make_response("logout")
-        clear_auth_cookie(response)
-
+        
         user = None
         if JWT_ENABLE:
             token = request.cookies.get(JWT_COOKIE_NAME)
+            clear_auth_cookie(response)
             if token is None:
                 return response
             try:
@@ -122,6 +154,7 @@ class RestfulAuth__Routes(object):
                 # TODO: check if the client is None
                 if JWT_STORE_AS_SESSION:
                     user.token = None
+                    user.r_token = None                  
             except Exception as e: # TODO: make exceptions specific, if evaluated to be necessary.
                 print('e', e)
                 return response
@@ -129,11 +162,17 @@ class RestfulAuth__Routes(object):
         if user is not None:
             self.storage.set_client_authenticated_status(user, False)
             self.storage.save_client(user)
-            
+        
         return response
 
     def register_route(self):
+        """
+            **Register User**
+            This function create/register/sign up a new user and store its credentials in database
 
+            :Returns:
+                response [Response]: A string telling us if register process is successfull or not
+        """
         response = make_response('success')
 
         username = None
@@ -158,87 +197,3 @@ class RestfulAuth__Routes(object):
         self.storage.save_client(new_user)
 
         return response
-
-    def refresh(self) -> bool:
-        """
-        After every refresh of webpage or when logging on to a new webpage
-        This function, first confirms that  Access token has expired or not
-        if it has,Then using a refresh token, it generates a new access token
-        
-        Returns:
-            bool: True if access/refresh key is still valid otherwise false 
-        """
-        
-        if JWT_ENABLE:
-            token = request.cookies.get(JWT_COOKIE_NAME)
-            secret = current_app.config['SECRET']
-            
-            if token is None: #if no token exist
-                return False #to logout/logout page
-            if validate_token(token=token,secret=secret):
-                return True #to Directed Page
-            else:
-                r_token = request.cookies.get(JWT_REF_COOKIE_NAME)
-                secret_1 = current_app.config['SECRET1']
-                if self.validate_token(r_token,secret_1):
-                    data = jwt.decode(r_token, secret1, "HS256")
-                    user = self.storage.get_client_by_id(id).first()
-                    if user is None:
-                        return False # to logout/login page
-                    if JWT_STORE_AS_SESSION:
-                        if user.r_token != r_token:
-                            return False #to logout/login page
-                    a_token = generate_token(data['id'],secret,time=2)
-                    user.token = a_token
-                    self.storage.set_client_token(user, a_token)
-                    self.storage.save_client(user)
-                    return True #To directed Page
-                else:
-                    return False #to logout/login page
-        else:
-            return False #to logout/login page
-
-def encoding_password(password):
-    """Encoding password for security purposes
-
-    Args:
-        password (string): User password
-
-    Returns:
-        String: Hash Password
-    """
-    return sc.hash(password)
-
-def generate_token(uid,key,time:int):
-    """
-    Generate tokens for authentication
-    Args:
-        uid (string): User Id
-        key (string): Secret key for encoding 
-        time (int): valid time period in minutes
-
-    Returns:
-        string: Encoded Token
-    """
-    payload = {
-                'id': uid,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=time)
-            }    
-    return jwt.encode(payload,key)
-
-
-def validate_token(token,secret):
-    """
-    checking if token has expired or not
-    Args:
-        token (string): token used for authentication
-        secret (string): secret key
-
-    Returns:
-        bool: true if token is still valid otherwise false
-    """
-    try:
-        jwt.verify(token,secret)
-        return True
-    except:
-        return False
