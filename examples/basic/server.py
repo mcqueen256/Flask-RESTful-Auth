@@ -18,9 +18,9 @@
 # - /user/logout
 
 from flask import Flask
-from flask import request, make_response
+from flask import request
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful_auth import RestfulAuth, login_required
+from flask_restful_auth import RestfulAuth
 from flask_restful_auth.storage_adaptors import SQLAlchemyStorageAdaptor
 
 from pathlib import Path
@@ -45,6 +45,7 @@ def create_app():
         username = db.Column(db.String(60), nullable=False, unique=True)
         password = db.Column(db.String(300), nullable=False)
         token = db.Column(db.String(500), nullable=True)
+        r_token = db.Column(db.String(500), nullable=True)
 
     app.db = db
     # Create tables
