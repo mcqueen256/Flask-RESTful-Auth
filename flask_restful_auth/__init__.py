@@ -3,8 +3,6 @@
 #
 # Otherwise this file should remain mostly empty.
 
-__version__ = "0.0.4"
-
-test_message = "Hello Flask!"
+__version__ = "0.0.5"
 
 from .restful_auth import RestfulAuth

@@ -32,6 +32,8 @@ def create_app():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'my little secret'
     app.config['SECRET'] = 'my little secret'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     # Initialise Flask-SQLAlchemy
     db = SQLAlchemy(app)

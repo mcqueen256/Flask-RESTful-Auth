@@ -11,7 +11,7 @@ README = (HERE / "README.md").read_text()
 
 __title__       = 'Flask-RESTful-Auth'
 __description__ = 'Customizable RESTful Authentication & User Management: Register, Confirm, Login, Change username/password, Forgot password and more.'
-__version__     = '0.0.4'
+__version__     = '0.0.5'
 __url__         = 'https://github.com/mcqueen256/Flask-RESTful-Auth'
 __author__      = ['Nicholas Buckeridge', 'Sarah Heading', 'Prateek Kr. Gupta', 'Prarthana Jayanna']
 __author_email__= 'bucknich@gmail.com'
