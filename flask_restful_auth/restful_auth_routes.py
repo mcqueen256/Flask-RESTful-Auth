@@ -44,8 +44,8 @@ class RestfulAuth__Routes(object):
         """
             **Login User**
             The function verifies user credentials and generate jwt tokens and login the user
-            :Returns:
-                response [Response]: A string telling us if login is successfull or not
+            :Returns: A string telling us if login is successfull or not
+            :rtype: flask.Response
         """
         # Construct empty credentials
         user_identifier = None
@@ -133,8 +133,8 @@ class RestfulAuth__Routes(object):
             The function clears the stored jwt tokens from cookies and user databse
             and logout the user
             
-            :Returns:
-                response [Response]: A string telling us if logout is successfull or not
+            :Returns: A string telling us if logout is successfull or not
+            :rtype: flask.Response 
         """
 
         # Auqire the database adaptor
@@ -171,8 +171,8 @@ class RestfulAuth__Routes(object):
             **Register User**
             This function create/register/sign up a new user and store its credentials in database
 
-            :Returns:
-                response [Response]: A string telling us if register process is successfull or not
+            :Returns:A string telling us if register process is successfull or not
+            :rtype: flask.Response
         """
         response = make_response('success')
 
