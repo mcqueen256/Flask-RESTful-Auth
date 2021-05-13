@@ -18,9 +18,9 @@
 # - /user/logout
 
 from flask import Flask
-from flask import request, make_response
+from flask import request
 from flask_sqlalchemy import SQLAlchemy
-from flask_restful_auth import RestfulAuth, login_required
+from flask_restful_auth import RestfulAuth
 from flask_restful_auth.storage_adaptors import SQLAlchemyStorageAdaptor
 
 from pathlib import Path

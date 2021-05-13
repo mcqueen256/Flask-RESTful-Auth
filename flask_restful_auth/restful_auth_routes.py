@@ -1,5 +1,5 @@
 from flask import current_app, make_response, request, Response
-from passlib.hash import sha256_crypt as sc
+from passlib.hash import sha256_crypt
 import uuid
 import jwt
 import datetime
@@ -91,7 +91,7 @@ class RestfulAuth__Routes(object):
 
         password_verified = False
         if AUTHENTICATION_PASSWORD_STORAGE_ENCRYPTION_SALT_SHA256:
-            password_verified = sc.verify(password, user.password)
+            password_verified = sha256_crypt.verify(password, user.password)
         else:
             # TODO: Workout what happens here (config error 500).
             pass
@@ -109,15 +109,16 @@ class RestfulAuth__Routes(object):
 
         if JWT_ENABLE:
             secret = current_app.config['SECRET']
-            token: str = generate_token(user.id,secret,2) #access token, valid for 2 minutes
+            token: str = self.generate_jwt_token(user.id, secret, JWT_EXPIRATION_TIMEOUT)
             response.set_cookie(JWT_COOKIE_NAME, value=token)
-            secret2 = current_app.config['SECRET2']
-            r_token: str = generate_token(user.id,secret2,60) # Refresh token, valid for 60 minutes
+            # TODO: fix Token refresh
+            # secret2 = current_app.config['SECRET2']
+            # r_token: str = self.generate_jwt_token(user.id,secret2,60) # Refresh token, valid for 60 minutes
             if JWT_STORE_AS_SESSION:
                 user.token = token #access token
-                user.r_token = r_token #refresh token
+                # user.r_token = r_token #refresh token # TODO: fix Token refresh
                 self.storage.set_client_token(user, token)
-                self.storage.set_client_Refresh_token_token(user, r_token)
+                # self.storage.set_client_Refresh_token_token(user, r_token) # TODO: fix Token refresh
         else:
             # TODO: Workout what happens here (config error 500).
             pass
@@ -184,7 +185,7 @@ class RestfulAuth__Routes(object):
             return reject_login_attempt('missing username or password')
 
         #securing the password
-        password = encoding_password(password)
+        password = self.encoding_password(password)
     
         # Check the user does not already exist
         client = self.storage.get_client_by_username(username)

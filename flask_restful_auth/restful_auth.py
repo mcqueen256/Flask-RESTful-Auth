@@ -3,11 +3,13 @@
 """
 
 from flask import Flask, abort, current_app, request
-from .restful_auth_routes import RestfulAuth__Routes,validate_token
+from .restful_auth_routes import RestfulAuth__Routes
 from .restful_auth_decorators import RestfulAuth__Decorators
 from .default_config import *
 from functools import wraps
+from passlib.hash import sha256_crypt
 import jwt
+import datetime
 
 from .storage_adaptors import StorageAdaptorInterface
 
@@ -30,23 +32,18 @@ class RestfulAuth(RestfulAuth__Routes, RestfulAuth__Decorators):
             if token is None:
                 return False # No token 
             secret = current_app.config['SECRET']
-            if validate_token(token=token,secret=secret):
-                try:                   
-                    data = jwt.decode(token, secret, "HS256")
-                    id = data['id']
-                    user = self.storage.get_client_by_id(id)
-                    if user is None:
+            try:                   
+                data = jwt.decode(token, secret, "HS256")
+                id = data['id']
+                user = self.storage.get_client_by_id(id)
+                if user is None:
+                    return False
+                if JWT_STORE_AS_SESSION:
+                    if user.token != token:
                         return False
-                    if JWT_STORE_AS_SESSION:
-                        if user.token != token:
-                            return False
-                except Exception as e: # TODO: make exceptions specific, if evaluated to be necessary.
-                    print('e', e)
-                    return False
-            else:
-                status = self.refresh()
-                if not status:
-                    return False
+            except Exception as e: # TODO: make exceptions specific, if evaluated to be necessary.
+                print('e', e)
+                return False
         return True
     
     def refresh(self) -> bool:
@@ -80,7 +77,7 @@ class RestfulAuth(RestfulAuth__Routes, RestfulAuth__Decorators):
                     if JWT_STORE_AS_SESSION:
                         if user.r_token != r_token:
                             return False #to logout/login page
-                    a_token = self.generate_token(data['id'],secret,time=2)
+                    a_token = self.generate_jwt_token(data['id'],secret,time=2)
                     user.token = a_token
                     self.storage.set_client_token(user, a_token)
                     self.storage.save_client(user)
@@ -91,7 +88,7 @@ class RestfulAuth(RestfulAuth__Routes, RestfulAuth__Decorators):
             return False #to logout/login page
 
     
-    def encoding_password(password):
+    def encoding_password(self, password):
         """
             **Hashing Password**
             Encoding password for security purposes
@@ -102,9 +99,9 @@ class RestfulAuth(RestfulAuth__Routes, RestfulAuth__Decorators):
             :Returns:
                 String: Hash Password
         """
-        return sc.hash(password)
+        return sha256_crypt.hash(password)
 
-    def generate_token(uid,key,time:int):
+    def generate_jwt_token(self, uid, key, time:int):
         """
             **Create Jwt Tokens**
             Generate tokens for authentication purposes
@@ -123,7 +120,7 @@ class RestfulAuth(RestfulAuth__Routes, RestfulAuth__Decorators):
         return jwt.encode(payload,key)
 
 
-    def validate_token(token,secret):
+    def validate_token(self, token,secret):
         """
             **Token Status Checkup**
             The function checks if token has expired or not
@@ -135,7 +132,7 @@ class RestfulAuth(RestfulAuth__Routes, RestfulAuth__Decorators):
                 bool: true if token is still valid otherwise false
         """
         try:
-            jwt.verify(token,secret)
+            jwt.verify(token,secret) # TODO: This function does not exist
             return True
         except:
             return False
