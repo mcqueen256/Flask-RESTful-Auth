@@ -1,6 +1,5 @@
 """
-Direction of testing
-====================
+**Direction of testing**
 
 It is the intention that in a week, this project will have automated testing but for now.
 
@@ -8,7 +7,7 @@ It is the intention that in a week, this project will have automated testing but
 
 The goal of these steps is to verify the login process works. This process uses Basic Auth for Authentication and JWT stored as a cookie called `token` for authorisation.
 
-**Check that a user is unautherised by default**
+**Check that a user is unauthorised by default**
 
     1. Using postman, create a new GET request::
 

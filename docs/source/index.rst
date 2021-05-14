@@ -51,7 +51,7 @@ Setup Procedure
 
     * To run the example::
 
-        python .\\examples\\00_basic\\app.py
+        python .\examples\00_basic\app.py
 
 API Reference
 **************
@@ -62,36 +62,43 @@ API Reference
 
 Decorators
 ==========
+
 .. automodule:: flask_restful_auth.restful_auth_decorators
   :members:
 
 Routes
 ======
+
 .. automodule:: flask_restful_auth.restful_auth_routes
   :members:
 
 Default Config
 ==============
+
 .. automodule:: flask_restful_auth.default_config
   :members:
 
 Storage Adaptors
 ================
+
 .. automodule:: flask_restful_auth.storage_adaptors.__init__
   :members:
 
 Server
 ======
+
 .. automodule:: examples.basic.server
   :members:
 
 Client
 ======
+
 .. automodule:: examples.basic.client
   :members:
 
 Testing
 =======
+
 .. automodule:: tests.testing
   :members:
 
