@@ -12,19 +12,46 @@ Overview on How to run this API
 Setup Procedure
 ===============
 1. Mac/Linux
-    * cd Flask-RESTful-Auth
-    * python3 -m venv venv
-    * source venv/bin/activate
-    * pip install -r requirements.txt
-    * To run the example
-        - python ./examples/00_basic/app.py
+    * After cloning, cd into the directory named after the remote repository::
+
+        cd Flask-RESTful-Auth
+
+    * Create the python virtual environment::
+
+        python3 -m venv venv
+
+    * Activate the virtual environment::
+
+        source venv/bin/activate
+
+    * Install all the requirements to run the project::
+
+        pip install -r requirements.txt
+
+    * To run the example::
+
+        python ./examples/00_basic/app.py
+
 2. Windows
-    * cd .\Flask-RESTful-Auth\
-    * python -m venv venv
-    * .\venv\Scripts\Activate.ps1
-    * pip install -r requirements.txt
-    * To run the example
-        - python .\\examples\\00_basic\\app.py
+    * After cloning, cd into the directory named after the remote repository::
+
+        cd .\Flask-RESTful-Auth\
+
+    * Create the python virtual environment::
+
+        python -m venv venv
+
+    * Activate the virtual environment::
+
+        .\venv\Scripts\Activate.ps1
+
+    * Install all the requirements to run the project::
+
+        pip install -r requirements.txt
+
+    * To run the example::
+
+        python .\\examples\\00_basic\\app.py
 
 API Reference
 **************
