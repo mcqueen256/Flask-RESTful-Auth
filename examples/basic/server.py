@@ -28,7 +28,36 @@ from pathlib import Path
 
 
 def create_app():
-    """ Flask application factory. """
+    """
+
+       **Usage of Curl**
+
+       Curl is a universal tool that runs on Windows, Mac and Linux which helps in transferring data across the network
+
+       Below are some example commands of curl
+
+       - Curl usage help::
+
+           curl -h
+
+       - GET method::
+
+            #used to gain access to resources from the URL specified
+            curl -X GET https://www.gmail.com/
+
+       - POST method::
+
+            #posts information to the web server
+            curl -X POST https://yourwebsite.com/
+
+       - PUT method::
+
+           #creates or replaces an existing server
+           curl -X PUT https://yourwebsite.com/
+
+
+    """
+
 
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'my little secret'

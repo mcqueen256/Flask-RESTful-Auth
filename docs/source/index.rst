@@ -1,8 +1,7 @@
 Flask Restful API and Authentication
 *************************************
 
-This is an API that is built to handle protective sharing of resources between user, client and server.
-
+This is an API that is built to handle protective sharing of resources between user, client and server. This project introduces a middleware that provides developers with fast, configurable initial setup, out of the box security and user management.
 
 Overview on How to run this API
 ===============================
@@ -25,43 +24,53 @@ Setup Procedure
     * .\venv\Scripts\Activate.ps1
     * pip install -r requirements.txt
     * To run the example
-        - python .\examples\00_basic\app.py
+        - python .\\examples\\00_basic\\app.py
 
-Documentation for the Code
-**************************
+API Reference
+**************
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+  :maxdepth: 2
+  :caption: Contents:
 
-flask_restful_auth main
-=======================
+Flask_Restful_Auth
+==================
 .. automodule:: flask_restful_auth
-   :members:
+  :members:
 
-flask_restful_auth restful_auth_decorators
-==========================================
+Restful_Auth_decorators
+=======================
 .. automodule:: flask_restful_auth.restful_auth_decorators
-   :members:
+  :members:
 
-flask_restful_auth decorators
-=============================
+Decorators
+===========
 .. automodule:: flask_restful_auth.decorators
-   :members:
+  :members:
 
-flask_restful_auth restful_auth_routes
-======================================
+Routes
+======
 .. automodule:: flask_restful_auth.restful_auth_routes
-   :members:
+  :members:
 
-flask_restful_auth client_manager
-=================================
+Client Manager
+==============
 .. automodule:: flask_restful_auth.client_manager
-   :members:
+  :members:
 
-flask_restful_auth default_config
-=================================
+Default Config
+==============
 .. automodule:: flask_restful_auth.default_config
-   :members:
+  :members:
+
+Server
+======
+.. automodule:: examples.basic.server
+  :members:
+
+Client
+======
+.. automodule:: examples.basic.client
+  :members:
 
 
 Indices and tables
