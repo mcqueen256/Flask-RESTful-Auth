@@ -32,19 +32,10 @@ API Reference
   :maxdepth: 2
   :caption: Contents:
 
-Flask_Restful_Auth
-==================
-.. automodule:: flask_restful_auth
-  :members:
-
-Restful_Auth_decorators
-=======================
-.. automodule:: flask_restful_auth.restful_auth_decorators
-  :members:
 
 Decorators
-===========
-.. automodule:: flask_restful_auth.decorators
+==========
+.. automodule:: flask_restful_auth.restful_auth_decorators
   :members:
 
 Routes
@@ -52,14 +43,14 @@ Routes
 .. automodule:: flask_restful_auth.restful_auth_routes
   :members:
 
-Client Manager
-==============
-.. automodule:: flask_restful_auth.client_manager
-  :members:
-
 Default Config
 ==============
 .. automodule:: flask_restful_auth.default_config
+  :members:
+
+Storage Adaptors
+================
+.. automodule:: flask_restful_auth.storage_adaptors.__init__
   :members:
 
 Server
@@ -72,6 +63,10 @@ Client
 .. automodule:: examples.basic.client
   :members:
 
+Testing
+=======
+.. automodule:: tests.testing
+  :members:
 
 Indices and tables
 ==================

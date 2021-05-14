@@ -3,16 +3,21 @@
 Simple command line client for reading and writing from/to the online text
 resources. More than one command can be used at the same time.
 
-To see the usage, see help: `python client.py -h`
+To see the usage, see help::
 
-To use any commands, first made sure the user is created:
-`python client --create -u user1, -p password1`
+    python client.py -h
 
-Example of of printing the user data to the console:
-`python client.py -u user1 -p password1 -t user -r`
+To use any commands, first made sure the user is created::
 
-Example of writing a file to the global resource:
-`python client.py -u user1 -p password1 -t global -w ./a_file.txt`
+    python client --create -u user1, -p password1
+
+Example of of printing the user data to the console::
+
+    python client.py -u user1 -p password1 -t user -r
+
+Example of writing a file to the global resource::
+
+    python client.py -u user1 -p password1 -t global -w ./a_file.txt
 
 """
 import argparse
