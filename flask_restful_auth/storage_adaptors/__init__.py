@@ -1,11 +1,11 @@
 """
-Storage Adaptors are database/datastorage abstractions. Is is not known if the
+`Storage Adaptors` are database/datastorage abstractions. Is is not known if the
 developer will be using an SQL database, MongoDB, Redis or another method of
 storing data. The Storage Adaptors serve as a bridge between the actions this
 library needs to perform and concrete implementation of the data storage
 service.
 
-`StorageAdaptor`s are transaction based. A client object can be retreived from
+`Storage Adaptors` are transaction based. A client object can be retreived from
 the data store and manipulated with the storage adaptor functions. The client
 object should have all the necessary attributes.
 
