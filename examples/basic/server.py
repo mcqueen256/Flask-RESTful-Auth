@@ -1,21 +1,46 @@
 """
-Server
+    **Example 0: Global and User Text Editor**
 
-Example 0: Global and User Text Editor
-======================================
 
-This server demonstrates the access control of two endpoints:
- - /text/global.txt
- - /text/user/<username>.txt
+    This server demonstrates the access control of two endpoints:
+     - /text/global.txt
+     - /text/user/<username>.txt
 
-All registered users can read and write to the /text/global.txt, however
-only a user can read and write to their own /text/user/<username>.txt file.
+    All registered users can read and write to the /text/global.txt, however
+    only a user can read and write to their own /text/user/<username>.txt file.
 
-The user management endpoints are implemented by the flask_restful_auth
-package. By default, they include:
-- /user/signup
-- /user/login
-- /user/logout
+    The user management endpoints are implemented by the flask_restful_auth
+    package. By default, they include:
+    - /user/signup
+    - /user/login
+    - /user/logout
+
+
+    **Usage of Curl**
+
+    Curl is a universal tool that runs on Windows, Mac and Linux which helps in transferring data across the network
+
+    Below are some example commands of curl
+
+    - Curl usage help::
+
+        curl -h
+
+    - GET method::
+
+         #used to gain access to resources from the URL specified
+         curl -X GET https://www.gmail.com/
+
+    - POST method::
+
+         #posts information to the web server
+         curl -X POST https://yourwebsite.com/
+
+    - PUT method::
+
+        #creates or replaces an existing server
+        curl -X PUT https://yourwebsite.com/
+
 """
 
 from flask import Flask
@@ -28,36 +53,6 @@ from pathlib import Path
 
 
 def create_app():
-    """
-
-       **Usage of Curl**
-
-       Curl is a universal tool that runs on Windows, Mac and Linux which helps in transferring data across the network
-
-       Below are some example commands of curl
-
-       - Curl usage help::
-
-           curl -h
-
-       - GET method::
-
-            #used to gain access to resources from the URL specified
-            curl -X GET https://www.gmail.com/
-
-       - POST method::
-
-            #posts information to the web server
-            curl -X POST https://yourwebsite.com/
-
-       - PUT method::
-
-           #creates or replaces an existing server
-           curl -X PUT https://yourwebsite.com/
-
-
-    """
-
 
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'my little secret'
